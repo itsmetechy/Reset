@@ -1,0 +1,68 @@
+const data = {
+  businessDetails: {
+    businessName: 'Inox',
+    count: 10,
+    registered: false,
+    vote: 'Can vote',
+    major: false
+  },
+  accountSummary: {
+    account: 'HSBC',
+    debit: false
+    },
+  teamDetails: {
+    team: [
+      {
+        firstName: 'John',
+        surName: 'Doe',
+        shareHolder: true
+      },
+      {
+        firstName: 'Tom',
+        surName: 'Joe',
+        eligible: false
+      }
+    ]
+  }  
+},
+parentChildMapping = {
+  businessDetails: {
+    registered: ['businessName', 'count'],
+    major: ['vote']
+  },
+  accountSummary: {
+    debit: ['account']
+  },
+  teamDetails: {
+    'team': {
+     shareHolder: ['firstName'],  
+     eligible: ['surName']
+    }    
+  }
+},
+logicalUnits = keys(parentChildMapping),
+mapIndexed = R.addIndex(R.map),
+resetChildData = (l, k, defaultTo = null) => {
+  map(i => {
+    data[l][i] = defaultTo
+  }, k)
+},
+parentChildReset = mapIndexed((logicalUnit, index) => {
+  const innerKeys = keys(parentChildMapping[logicalUnit]);
+  const fieldsToReset = parentChildMapping[logicalUnit][innerKeys[0]];
+  if(typeof(data[logicalUnit]) && data[logicalUnit][innerKeys[0]] === false) {
+    resetChildData(logicalUnit, fieldsToReset)
+  }
+}, logicalUnits)
+
+//parentChildReset()
+const alter = (checked, key, items) => map(
+ when(propEq('key', key), assoc('good', checked)),
+ items
+)
+
+alter('-', logicalUnits, data);                
+
+
+
+
